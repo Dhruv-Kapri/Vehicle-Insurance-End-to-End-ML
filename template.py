@@ -39,9 +39,9 @@ list_of_files = [
     f"{project_name}/logger/__init__.py",
     f"{project_name}/logger/logger.py",
     #
-    f"{project_name}/pipline/__init__.py",
-    f"{project_name}/pipline/training_pipeline.py",
-    f"{project_name}/pipline/prediction_pipeline.py",
+    f"{project_name}/pipeline/__init__.py",
+    f"{project_name}/pipeline/training_pipeline.py",
+    f"{project_name}/pipeline/prediction_pipeline.py",
     #
     f"{project_name}/utils/__init__.py",
     f"{project_name}/utils/main_utils.py",
@@ -49,13 +49,10 @@ list_of_files = [
     "config/model.yaml",
     "config/schema.yaml",
     #
-    "frontend",
-    #
     "backend/app.py",
     "backend/demo.py",
     #
     "notebook/unititled.ipynb",
-    "backend/demo.py",
     #
     "requirements.txt",
     "Dockerfile",
