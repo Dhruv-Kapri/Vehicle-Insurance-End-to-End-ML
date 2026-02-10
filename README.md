@@ -58,10 +58,15 @@ Vehicle-Insurance-End-to-End-ML
   - Scaling via `ColumnTransformer`
   - Class imbalance handling using **SMOTEENN**
   - Transformation object persistence
+- **Model Trainer**
+  - Trains a Random Forest model using transformed datasets, pre-selected hyper-parameters
+  - Handle class imbalance–aware training data
+  - Perform model fitting with configurable hyperparameters
+  - Checks model accuracy across a predefined threshold
+  - Save trained model artifacts for downstream evaluation & deployment
 
 ### Upcoming
 
-- **Model Trainer**
 - **Model Evaluation**
 - **Model Pusher** (AWS S3)
 - **Prediction Pipeline**
@@ -143,6 +148,28 @@ artifact/<timestamp>/data_transformation/
 │   └── test.npy
 └── transformed_object/
     └── proprocessing.pkl
+```
+
+### 4. Model Trainer Workflow
+
+The **Model Trainer component** is responsible for training, and persisting the ML model using the transformed datasets produced by the **Data Transformation component** in the pipeline.
+
+#### Steps:
+
+1. Loads transformed train & test arrays (`.npy`)
+2. Splits arrays into:
+   - Input features (`X`)
+   - Target labels (`y`)
+3. Trains `Random Forest` models and evaluates if it's accuracy is greater than set threshold
+4. Evaluates models using appropriate classification metrics
+5. Persists the trained model as an artifact
+6. Logs training metrics and model selection details
+
+#### Artifacts generated:
+
+```text
+artifact/<timestamp>/model_trainer/trained_model
+└── model.pkl
 ```
 
 ---
