@@ -9,6 +9,7 @@ from src.logger import logger
 class TrainPipeline:
     def __init__(self):
         self.data_ingestion_config = DataIngestionConfig()
+        self.data_validation_config = DataValidationConfig()
 
     def start_data_ingestion(self) -> DataIngestionArtifact:
         """
@@ -29,6 +30,31 @@ class TrainPipeline:
         except Exception as e:
             raise MyException(e, sys) from e
 
+    def start_data_validation(
+        self, data_ingestion_artifact: DataIngestionArtifact
+    ) -> DataValidationArtifact:
+        """
+        This method of TrainPipeline class is responsible for starting data validation component
+        """
+        logger.info("Entered the start_data_validation method of TrainPipeline class")
+
+        try:
+            data_validation = DataValidation(
+                data_ingestion_artifact=data_ingestion_artifact,
+                data_validation_config=self.data_validation_config,
+            )
+
+            data_validation_artifact = data_validation.initiate_data_validation()
+
+            logger.info("Performed the data validation operation")
+            logger.info(
+                "Exited the start_data_validation method of TrainPipeline class"
+            )
+
+            return data_validation_artifact
+        except Exception as e:
+            raise MyException(e, sys) from e
+
     def run_pipeline(
         self,
     ) -> None:
@@ -37,14 +63,16 @@ class TrainPipeline:
         """
         try:
             data_ingestion_artifact = self.start_data_ingestion()
-            # data_validation_artifact = self.start_data_validation(data_ingestion_artifact=data_ingestion_artifact)
+            data_validation_artifact = self.start_data_validation(
+                data_ingestion_artifact=data_ingestion_artifact
+            )
             # data_transformation_artifact = self.start_data_transformation(
             #     data_ingestion_artifact=data_ingestion_artifact, data_validation_artifact=data_validation_artifact)
             # model_trainer_artifact = self.start_model_trainer(data_transformation_artifact=data_transformation_artifact)
             # model_evaluation_artifact = self.start_model_evaluation(data_ingestion_artifact=data_ingestion_artifact,
             #                                                         model_trainer_artifact=model_trainer_artifact)
             # if not model_evaluation_artifact.is_model_accepted:
-            #     logging.info(f"Model not accepted.")
+            #     logger.info(f"Model not accepted.")
             #     return None
             # model_pusher_artifact = self.start_model_pusher(model_evaluation_artifact=model_evaluation_artifact)
 

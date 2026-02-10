@@ -51,7 +51,7 @@ class Proj_Data:
             df = pd.DataFrame(list(collection.find()))
             logger.info(f"Data fetched: {len(df)} records")
 
-            columns_to_drop = ["_id", "id"]
+            columns_to_drop = ["_id"]
             df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
             df.replace({"na": np.nan}, inplace=True)
             return df
