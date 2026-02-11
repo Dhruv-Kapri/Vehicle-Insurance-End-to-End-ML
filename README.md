@@ -285,7 +285,7 @@ Steps:
 1. Build Docker image
 2. Push to AWS ECR
 3. EC2 self-hosted runner pulls image
-4. Deploys container on port 5080
+4. Deploys container on port 5000
 
 ### AWS Infrastructure
 
@@ -324,9 +324,8 @@ Steps:
 
 ### 6. GitHub Actions Workflow Success
 
-Show green CI/CD pipeline run.
-
-![GitHub Actions Success](./docs/images/github_actions.png)
+![GitHub Actions Failure](./docs/images/github_actions_failure.png)  
+![GitHub Actions Success](./docs/images/github_actions.png)  
 
 ---
 
