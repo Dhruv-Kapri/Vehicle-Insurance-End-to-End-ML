@@ -1,8 +1,36 @@
 # Vehicle-Insurance-End-to-End-ML
 
-An **end-to-end Machine Learning project** demonstrating a **production-grade ML pipeline** — from **data ingestion using MongoDB** to **model training, evaluation, deployment, and CI/CD using Docker and AWS**.
+An **end-to-end production-grade Machine Learning system** demonstrating a complete **MLOps lifecycle**:
+
+> MongoDB → Data Pipeline → Model Training → Model Evaluation → AWS S3 Model Registry → FastAPI Inference → Docker → CI/CD → AWS EC2 Deployment
 
 This project follows an **industry-aligned MLOps workflow** with **modular**, **scalable**, and **maintainable** code architecture.
+
+---
+
+## Live Architecture Overview
+
+```text
+MongoDB Atlas
+      ↓
+Data Ingestion Pipeline
+      ↓
+Validation → Transformation → SMOTEENN
+      ↓
+Model Training (Random Forest)
+      ↓
+Model Evaluation
+      ↓
+Model Registry (AWS S3)
+      ↓
+FastAPI Backend
+      ↓
+Docker Image (ECR)
+      ↓
+GitHub Actions CI/CD
+      ↓
+AWS EC2 Deployment
+```
 
 ---
 
@@ -34,6 +62,9 @@ Vehicle-Insurance-End-to-End-ML
 │   └── utils/                    # Utility functions
 ├── template.py                   # Project scaffolding script
 ├── Dockerfile                    # Docker configuration
+├── .github/
+│   └── workflows/
+│       └── aws.yaml              # CI/CD workflow
 ├── pyproject.toml                # Local package setup
 ├── requirements.txt              # Python dependencies
 └── README.md
@@ -41,57 +72,38 @@ Vehicle-Insurance-End-to-End-ML
 
 ---
 
-## Current Project Status
+## Completed Components
 
-### Completed
+### Core ML Pipeline
 
-- **Project scaffolding & packaging** using `pyproject.toml`
-- **Centralized logging** module
-- **Custom exception handling**
-- **MongoDB Atlas setup & connection**
-- **EDA & Feature Engineering** notebook
-- **Data Ingestion pipeline**
-  - MongoDB → `pandas.DataFrame`
-  - Train / Test split
-  - Artifact generation
-- **Data Validation**
-  - Schema-based column validation
-  - Numerical & categorical column checks
-  - Validation report generation
-- **Data Transformation**
-  - Custom feature engineering
-  - Scaling via `ColumnTransformer`
-  - Class imbalance handling using **SMOTEENN**
-  - Transformation object persistence
-- **Model Trainer**
-  - Trains a Random Forest model using transformed datasets, pre-selected hyper-parameters
-  - Handle class imbalance–aware training data
-  - Perform model fitting with configurable hyperparameters
-  - Checks model accuracy across a predefined threshold
-  - Save trained model artifacts for downstream evaluation & deployment
-- **Model Evaluation**
-  - Compares newly trained model against production model (if exists)
-  - Computes F1-score on holdout test dataset
-  - Accepts model only if performance improves
-  - Generates model comparison artifact
-  - Ensures safe model version promotion
-- **Model Pusher** (AWS S3)
-  - Uploads accepted model to AWS S3 bucket
-  - Maintains production model path
-  - Enables model version control via cloud storage
-- **Prediction Pipeline**
-  - Loads model from S3
-  - Ensures feature alignment
-  - Returns prediction result
+- Data Ingestion (MongoDB → DataFrame)
+- Data Validation (Schema-based)
+- Data Transformation (Feature Engineering + Scaling)
+- Class imbalance handling using **SMOTEENN**
+- Model Trainer (Random Forest)
+- Model Evaluation (F1-score comparison)
+- Model Registry via AWS S3
+- Model Pusher
 
-### Upcoming
+### Backend
 
-- **CI/CD** with GitHub Actions
-- **Deployment** on AWS EC2
+- FastAPI structured backend
+- Layered architecture (Route → Form → Service → Pipeline)
+- HTML frontend integration
+- Static file handling
+
+### MLOps
+
+- Dockerized application
+- GitHub Actions CI/CD
+- AWS ECR integration
+- EC2 self-hosted runner
+- Automated deployment on push
+- Production model pulled from S3
 
 ---
 
-## Workflow Components
+## ML Workflow Components
 
 ### 1. Data Ingestion Workflow
 
@@ -222,30 +234,35 @@ aws/Amazon S3/Buckets/vehicle-insurance-s3-bucket
 └── model.pkl
 ```
 
-### 7. Prediction & Local Deployment Workflow
+---
 
-The project now supports **local model inference using FastAPI**. The backend follows a layered architecture:
+## Prediction & Local Deployment
 
-#### Backend Layers
+The project supports **local model inference using FastAPI**. T
 
-1. **Routes Layer**
-   - `train.py` → triggers training pipeline
-   - `predict.py` → handles form submission
-2. **Form Layer**
-   - Parses and typecasts HTML form inputs
-   - Ensures numeric conversion before inference
+### Backend Architecture
+
+1. **Routes**
+   - `/train`
+   - `/` (predict)
+
+2. **Forms**
+   - Type casting
+   - Input sanitization
+
 3. **Service Layer**
-   - Calls Prediction Pipeline
+   - Calls prediction pipeline
+
 4. **Prediction Pipeline**
    - Loads model from S3
    - Ensures feature alignment
-   - Returns prediction result
+   - Returns prediction
 
 ---
 
-### Important: Feature Consistency Fix
+### ⚠ Feature Consistency Fix
 
-Since `id` column was removed during training but exists in preprocessing expectations, the backend dynamically injects it during inference:
+Since `id` column was removed during training but expected by preprocessing, we inject it dynamically:
 
 ```python
 # src/pipeline/prediction_pipeline.py
@@ -254,6 +271,62 @@ def predict(self, dataframe):
     if "id" not in dataframe.columns:
         dataframe["id"] = 0
 ```
+
+---
+
+## CI/CD & Deployment
+
+### GitHub Actions Pipeline
+
+Trigger: `git push`
+
+Steps:
+
+1. Build Docker image
+2. Push to AWS ECR
+3. EC2 self-hosted runner pulls image
+4. Deploys container on port 5080
+
+### AWS Infrastructure
+
+- IAM User
+- S3 Bucket (Model Registry)
+- ECR Repository
+- EC2 Ubuntu Server
+- Self-hosted GitHub Runner
+
+---
+
+## Project Screenshots
+
+### 1. MongoDB Atlas Dashboard
+
+![MongoDB Atlas Dashboard](./docs/images/mongodb_dashboard.png)  
+![MongoDB Atlas Cluster](./docs/images/mongodb_cluster.png)
+
+### 2. AWS S3 Bucket (Model Registry)
+
+![S3 Bucket](./docs/images/s3_bucket.png)
+
+### 3. AWS ECR Repository
+
+![ECR Repo](./docs/images/ecr_repo.png)
+![ECR Docker Image](./docs/images/ecr_doceke_image.png)
+
+### 4. AWS EC2 Instance Running
+
+![EC2 Instance](./docs/images/ec2_instance.png)
+![EC2 Security](./docs/images/ec2_security.png)
+
+### 5. Application Running on EC2 Public IP
+
+![Live Application](./docs/images/live_app.png)
+
+### 6. GitHub Actions Workflow Success
+
+Show green CI/CD pipeline run.
+
+![GitHub Actions Success](./docs/images/github_actions.png)
 
 ---
 
@@ -269,8 +342,9 @@ Or Create a `.env` file:
 
 ```env
 MONGODB_CONNECTION_URL=mongodb+srv://<username>:<password>@<cluster-url>
-AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=
 ```
 
 ### Option 2: Export directly (Linux / macOS)
@@ -279,6 +353,7 @@ AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY
 export MONGODB_CONNECTION_URL="mongodb+srv://<username>:<password>@<cluster-url>"
 export AWS_ACCESS_KEY_ID="AWS_ACCESS_KEY_ID"
 export AWS_SECRET_ACCESS_KEY="AWS_SECRET_ACCESS_KEY"
+export AWS_DEFAULT_REGION="AWS_DEFAULT_REGION"
 ```
 
 ---
@@ -290,24 +365,10 @@ export AWS_SECRET_ACCESS_KEY="AWS_SECRET_ACCESS_KEY"
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-```
-
-### 2. Install Dependencies
-
-```bash
 pip install -r requirements.txt
-```
 
-### 3. Train Model (Optional if model already exists in S3)
-
-```bash
-python backend/demo.py
-```
-
-### 4. Run FastAPI Server
-
-```bash
-python backend/app.py
+python backend/demo.py     # Train
+python backend/app.py      # Run server
 ```
 
 > Application will be available at: [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
@@ -320,11 +381,13 @@ python backend/app.py
 - **ML:** `Scikit-learn`, `Pandas`, `NumPy`
 - **Database:** MongoDB Atlas
 - **Backend:** FastAPI
-- **MLOps:** Docker, AWS S3, GitHub Actions _(planned)_
-- **Deployment:** AWS EC2 _(planned)_
+- **MLOps:** Docker, AWS S3, GitHub Actions
+- **Deployment:** AWS EC2
 
 ---
 
 ## License
 
 MIT License
+
+---
